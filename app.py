@@ -482,3 +482,87 @@ with tab4:
             st.success("Message sent successfully! We'll contact you soon.")
         else:
             st.error("Please fill all fields.")
+
+# ---------- DETAILED SKILL MATCH PROGRESS ----------
+st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+st.markdown('<h3 class="section-header">Skill Match Details</h3>', unsafe_allow_html=True)
+
+user_skills = [s.strip().lower() for s in skills.split(",")]
+
+for internship in internships:
+    st.markdown(f"### {internship['Role']} - {internship['Location']}")
+    
+    intern_skills = [s.strip().lower() for s in str(df_internships.loc[df_internships['Title'] == internship['Role'], 'Requirements'].values[0]).split(",")]
+    
+    for skill in user_skills:
+        match = 100 if skill in intern_skills else 0
+        st.text(f"{skill}: {'✔️' if match else '❌'}")
+        st.progress(match)
+
+
+# ---------- FOOTER ----------
+st.markdown("""
+<hr style="border:1px solid #e2e8f0">
+<div style="text-align:center; color:#4a5568; font-size:0.9rem; margin-top:10px;">
+    Need Help? Contact us at 
+    <a href="mail to:support@smartAssigners.com">support@smartassigners.com</a>
+</div>
+""", unsafe_allow_html=True)
+
+# ---------- FLOATING HELP BUTTON ----------
+st.markdown("""
+<style>
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    z-index: 999;
+}
+.help-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Display the floating button
+st.markdown('<div class="help-button">Need Help? Ask Here</div>', unsafe_allow_html=True)
+
+# ---------- HELP FORM ----------
+# Use st.session_state to toggle visibility
+if "show_help" not in st.session_state:
+    st.session_state.show_help = False
+
+# Clicking the button toggles the form
+if st.button("Need Help? Ask Here"):
+    st.session_state.show_help = not st.session_state.show_help
+
+if st.session_state.show_help:
+    st.markdown("""
+    <div style="position: fixed; bottom: 80px; right: 20px; width: 300px; 
+                background: white; padding: 20px; border-radius: 12px; 
+                box-shadow: 0 4px 25px rgba(0,0,0,0.3); z-index: 998;">
+    """, unsafe_allow_html=True)
+
+    help_name = st.text_input("Your Name", key="help_name")
+    help_email = st.text_input("Your Email", key="help_email")
+    help_message = st.text_area("Your Question", key="help_message", height=100)
+
+    if st.button("Send Message", key="help_send"):
+        if help_name and help_email and help_message:
+            st.success("Message sent! We'll get back to you soon.")
+            st.session_state.show_help = False  # Hide form after sending
+        else:
+            st.error("Please fill all fields.")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
