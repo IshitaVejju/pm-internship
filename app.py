@@ -308,7 +308,7 @@ with tab1:
             sleep(1.8)
 
             # Load CSV
-            df_internships = pd.read_csv("internship.csv")
+            df_internships = pd.read_csv("data/internship.csv")
 
             matched_internships = []
 
