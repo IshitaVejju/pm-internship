@@ -302,52 +302,53 @@ with tab1:
                              help="Choose your area of interest")
     
     st.markdown('</div>', unsafe_allow_html=True)
-    
     if st.button("Find Best Matches"):
     with st.spinner("Analyzing your profile and matching opportunities..."):
         sleep(1.8)
 
-    # Load CSV
-    df_internships = pd.read_csv("internship.csv")
+        # Load CSV
+        df_internships = pd.read_csv("internship.csv")
 
-    matched_internships = []
+        matched_internships = []
 
-    for idx, intern in df_internships.iterrows():
-        score = 50  # base score
+        for idx, intern in df_internships.iterrows():
+            score = 50  # base score
 
-        # Location match
-        if location != "Any Location" and location == intern["Location"]:
-            score += 20
+            # Location match
+            if location != "Any Location" and location == intern["Location"]:
+                score += 20
 
-        # Sector match
-        if sector != "Any Sector" and sector in intern["Sector"]:
-            score += 25
+            # Sector match
+            if sector != "Any Sector" and sector in intern["Sector"]:
+                score += 25
 
-        # Skills match
-        user_skills = [s.strip().lower() for s in skills.split(",")]
-        intern_skills = [s.strip().lower() for s in str(intern.get("Skills","")).split(",")]
-        if intern_skills:
-            skill_matches = len(set(user_skills) & set(intern_skills))
-            score += skill_matches * 5  # 5 points per matching skill
+            # Skills match
+            user_skills = [s.strip().lower() for s in skills.split(",")]
+            intern_skills = [s.strip().lower() for s in str(intern.get("Skills","")).split(",")]
+            if intern_skills:
+                skill_matches = len(set(user_skills) & set(intern_skills))
+                score += skill_matches * 5  # 5 points per matching skill
 
-        # Academic performance scaling
-        score += int((academics - 50) / 5)  # simple scaling
+            # Academic performance scaling
+            score += int((academics - 50) / 5)  # simple scaling
 
-        matched_internships.append({
-            "Role": intern["Role"],
-            "Location": intern["Location"],
-            "Match Score": f"{min(score,100)}%",
-            "Stipend": intern["Stipend"],
-            "Sector": intern["Sector"]
-        })
+            matched_internships.append({
+                "Role": intern["Role"],
+                "Location": intern["Location"],
+                "Match Score": f"{min(score,100)}%",
+                "Stipend": intern["Stipend"],
+                "Sector": intern["Sector"]
+            })
 
-    # Sort by Match Score
-    matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
+        # Sort by Match Score
+        matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
 
-    # Display top 3
-    internships = matched_internships[:3]
+        # Display top 3
+        internships = matched_internships[:3]
 
-    st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
+
+        # Continue with your comparison table and detailed cards
 
         # Comparison Table
         st.markdown('<div class="professional-card">', unsafe_allow_html=True)
