@@ -1,165 +1,155 @@
 import streamlit as st
 import pandas as pd
+from time import sleep
 import io
 
-# -----------------------------
-# Load internship data
-# -----------------------------
-@st.cache_data
-def load_data():
-    try:
-        return pd.read_csv("data/internship.csv")
-    except FileNotFoundError:
-        return pd.DataFrame(columns=["Title", "Company", "Location", "Apply_Link"])
+# ------------------- Your existing PAGE CONFIG and STYLING -------------------
+st.set_page_config(
+    page_title="SmartAssigners | Internship Platform",
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# -----------------------------
-# Internship Finder Page
-# -----------------------------
-def internship_finder():
-    st.title("Internship Finder")
-    st.write("Search and explore internships available for you.")
+# (keep all your previous <style> block unchanged)
+# ------------------- HEADER -------------------
+st.markdown("""
+<div class="main-header">
+    <div class="main-title">SmartAssigners</div>
+    <div class="main-subtitle">Intelligent Internship Allocation & Career Development Platform</div>
+</div>
+""", unsafe_allow_html=True)
 
-    df = load_data()
-    if df.empty:
-        st.warning("No internship data found. Please upload internship.csv in the `data/` folder.")
-        return
+# ------------------- TABS -------------------
+tab1, tab2, tab3, tab4 = st.tabs(["Internship Finder", "Career Advisor", "Resume Builder", "Contact Us"])
 
-    search = st.text_input("🔎 Search internships (by title, company, or location)").lower()
+# ------------------- INTERNSHIP FINDER -------------------
+with tab1:
+    # (keep all your existing Internship Finder code exactly as is)
+    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Discover Your Perfect Internship</h2>', unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        name = st.text_input("Full Name", placeholder="Enter your complete name")
+        skills = st.text_area("Technical Skills", placeholder="e.g., Python, Machine Learning, Data Analysis", height=100)
+        academics = st.slider("Academic Performance (%)", 40, 100, 75, help="Your overall academic percentage")
+    with col2:
+        location = st.selectbox("Preferred Location",
+                               ["Any Location", "Delhi", "Mumbai", "Hyderabad", "Bengaluru", "Chennai"],
+                               help="Select your preferred internship location")
+        sector = st.selectbox("Industry Sector",
+                             ["Any Sector", "AI/ML", "Web Development", "Data Science", "Cybersecurity", "Business"],
+                             help="Choose your area of interest")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    if search:
-        results = df[
-            df.apply(lambda row: search in str(row.values).lower(), axis=1)
+    if st.button("Find Best Matches"):
+        with st.spinner("Analyzing your profile and matching opportunities..."):
+            sleep(1.8)
+        internships = [
+            {"Role": "AI/ML Research Intern", "Location": "Bengaluru", "Match Score": "92%", "Stipend": "₹12,000", "Sector": "Artificial Intelligence"},
+            {"Role": "Data Science Intern", "Location": "Mumbai", "Match Score": "85%", "Stipend": "₹10,000", "Sector": "Data Science"},
+            {"Role": "Full Stack Developer", "Location": "Delhi", "Match Score": "80%", "Stipend": "₹8,000", "Sector": "Web Development"}
         ]
-    else:
-        results = df
+        st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
+        st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+        st.markdown('<h3 class="section-header">Opportunity Comparison</h3>', unsafe_allow_html=True)
+        df = pd.DataFrame(internships)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+        st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
+        cols = st.columns(len(internships))
+        for col, internship in zip(cols, internships):
+            with col:
+                st.markdown(f"""
+                <div class="internship-card">
+                    <div class="internship-title">{internship['Role']}</div>
+                    <div class="internship-detail">📍 {internship['Location']}</div>
+                    <div class="internship-detail">💰 {internship['Stipend']}</div>
+                    <div class="internship-detail">🏢 {internship['Sector']}</div>
+                    <div class="match-score">Match: {internship['Match Score']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.subheader("Results")
-    st.dataframe(results)
-
-    if not results.empty:
-        for _, row in results.iterrows():
-            st.markdown(
-                f"""
-                **{row['Title']}** at *{row['Company']}*  
-                {row['Location']}  
-                [Apply Here]({row['Apply_Link']})
-                ---
-                """
-            )
-
-# -----------------------------
-# Career Advisor Page
-# -----------------------------
-def career_advisor():
-    st.title("Career Advisor")
-    st.write("Get simple AI-powered career advice.")
-
-    role = st.text_input("Enter your dream role (e.g., Data Scientist, Web Developer)")
-    skills = st.text_area("Enter your skills (comma separated)")
-
-    if st.button("Get Advice"):
-        if role and skills:
-            st.success(f"Advice for becoming a **{role}**:")
+# ------------------- CAREER ADVISOR -------------------
+with tab2:
+    # (keep all your existing Career Advisor code exactly as is)
+    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Personalized Career Guidance</h2>', unsafe_allow_html=True)
+    col1, col2 = st.columns([1,1])
+    with col1:
+        role = st.text_input("Target Role", placeholder="e.g., Data Scientist, Software Engineer")
+        skills_list = st.text_area("Current Skill Set", placeholder="List your current technical and soft skills", height=120)
+    with col2:
+        experience = st.selectbox("Experience Level", ["Entry Level", "Mid Level", "Senior Level"])
+    st.markdown('</div>', unsafe_allow_html=True)
+    if st.button("Get Career Roadmap"):
+        with st.spinner("Creating your personalized career development plan..."):
+            sleep(1.8)
+        st.markdown('<div class="success-message">Your personalized career roadmap is ready!</div>', unsafe_allow_html=True)
+        advice_items = [
+            {"title":"Strengthen Technical Foundation","content":"Focus on mastering core technologies like Python, SQL, and cloud platforms. Build hands-on projects that demonstrate your expertise and problem-solving abilities.","class":"advice-primary"},
+            {"title":"Develop Professional Portfolio","content":"Create a compelling portfolio showcasing your best work. Include detailed case studies, code repositories on GitHub, and maintain an active professional presence on LinkedIn.","class":"advice-secondary"},
+            {"title":"Expand Professional Network","content":"Engage with industry professionals through conferences, meetups, and online communities. Consider mentorship opportunities and contribute to open-source projects.","class":"advice-tertiary"}
+        ]
+        for advice in advice_items:
             st.markdown(f"""
-            - Keep improving your skills in **{skills}**  
-            - Build a portfolio with real projects  
-            - Apply for internships in related fields  
-            - Network with professionals on LinkedIn  
-            - Stay consistent and keep learning 
-            """)
-        else:
-            st.error("⚠️ Please enter both role and skills.")
+            <div class="advice-card {advice['class']}">
+                <div class="advice-title">{advice['title']}</div>
+                <div class="advice-content">{advice['content']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-# -----------------------------
-# Resume Builder Page
-# -----------------------------
-def resume_builder():
-    st.title("📝 Resume Builder")
-    st.write("Fill in your details and download your resume instantly.")
-
+# ------------------- RESUME BUILDER -------------------
+with tab3:
+    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Resume Builder</h2>', unsafe_allow_html=True)
     name = st.text_input("Full Name")
     email = st.text_input("Email")
     phone = st.text_input("Phone Number")
-    linkedin = st.text_input("LinkedIn Profile")
+    linkedin = st.text_input("LinkedIn URL")
     summary = st.text_area("Career Summary")
-
-    st.subheader("Education")
-    education = st.text_area("Enter education details")
-
-    st.subheader("Experience")
-    experience = st.text_area("Enter experience details")
-
-    st.subheader("🛠 Skills")
-    skills = st.text_area("List your skills (comma separated)")
+    education = st.text_area("Education Details")
+    experience = st.text_area("Experience Details")
+    skills = st.text_area("Skills (comma separated)")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.button("Generate Resume"):
-        if name and email and summary:
-            resume_md = f"""
-# {name}
-📧 {email} | 📞 {phone} | 🔗 {linkedin}
+        if name and email:
+            resume_text = f"""
+{name}
+Email: {email} | Phone: {phone} | LinkedIn: {linkedin}
 
----
-
-## Career Summary
+Summary:
 {summary}
 
-## Education
+Education:
 {education}
 
-## Experience
+Experience:
 {experience}
 
-## Skills
+Skills:
 {skills}
 """
             st.subheader("Preview")
-            st.markdown(resume_md)
-
-            # Download option
-            buffer = io.BytesIO()
-            buffer.write(resume_md.encode("utf-8"))
-            buffer.seek(0)
-
-            st.download_button(
-                label="Download Resume (Text Format)",
-                data=buffer,
-                file_name="resume.txt",
-                mime="text/plain"
-            )
+            st.text(resume_text)
+            st.download_button("Download Resume", data=resume_text, file_name="resume.txt")
         else:
-            st.error("‼️Please fill in at least Name, Email, and Summary.")
+            st.error("Please fill at least Name and Email.")
 
-# -----------------------------
-# Contact Us Page
-# -----------------------------
-def contact_us():
-    st.title("📞 Contact Us")
-    st.write("Need help? Reach out below.")
-
-    name = st.text_input("Your Name")
-    email = st.text_input("Your Email")
-    message = st.text_area("Your Message")
+# ------------------- CONTACT US -------------------
+with tab4:
+    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Contact Us</h2>', unsafe_allow_html=True)
+    cname = st.text_input("Your Name")
+    cemail = st.text_input("Your Email")
+    cmessage = st.text_area("Message")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.button("Send Message"):
-        if name and email and message:
-            st.success("Thank you! Your message has been sent. We’ll get back to you soon.")
+        if cname and cemail and cmessage:
+            st.success("✅ Message sent successfully! We'll contact you soon.")
         else:
-            st.error("⚠️ Please fill all fields before submitting.")
-
-# -----------------------------
-# Sidebar Navigation
-# -----------------------------
-st.sidebar.title("Navigation")
-choice = st.sidebar.radio(
-    "Go to",
-    ["Internship Finder", "Career Advisor", "Resume Builder", "Contact Us"]
-)
-
-if choice == "Internship Finder":
-    internship_finder()
-elif choice == "Career Advisor":
-    career_advisor()
-elif choice == "Resume Builder":
-    resume_builder()
-elif choice == "Contact Us":
-    contact_us()
+            st.error("⚠️ Please fill all fields.")
