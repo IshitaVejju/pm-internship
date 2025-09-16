@@ -1,169 +1,165 @@
 import streamlit as st
 import pandas as pd
 import io
-from time import sleep
 
-# ========================
-# PAGE CONFIG
-# ========================
-st.set_page_config(page_title="PM Internship Finder", page_icon="🔎", layout="wide")
+# -----------------------------
+# Load internship data
+# -----------------------------
+@st.cache_data
+def load_data():
+    try:
+        return pd.read_csv("data/internship.csv")
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["Title", "Company", "Location", "Apply_Link"])
 
-# ========================
-# CUSTOM CSS
-# ========================
-st.markdown("""
-<style>
-body {
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-}
-.section-header {
-    font-size: 26px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-.professional-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-.stTabs [data-baseweb="tab-list"] {
-    justify-content: center;
-}
-</style>
-""", unsafe_allow_html=True)
+# -----------------------------
+# Internship Finder Page
+# -----------------------------
+def internship_finder():
+    st.title("Internship Finder")
+    st.write("Search and explore internships available for you.")
 
-# ========================
-# HEADER
-# ========================
-st.title("Internship Finder & Career Assistant")
-st.markdown("Helping students discover the **right internships, career advice, and resume tools**.")
+    df = load_data()
+    if df.empty:
+        st.warning("No internship data found. Please upload internship.csv in the `data/` folder.")
+        return
 
-# ========================
-# TABS
-# ========================
-tab1, tab2, tab3, tab4 = st.tabs(["🔍 Internship Finder", "🧭 Career Advisor", "📝 Resume Builder", "📞 Contact"])
+    search = st.text_input("🔎 Search internships (by title, company, or location)").lower()
 
-# ========================
-# TAB 1: INTERNSHIP FINDER
-# ========================
-with tab1:
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">Find Matching Internships</h2>', unsafe_allow_html=True)
+    if search:
+        results = df[
+            df.apply(lambda row: search in str(row.values).lower(), axis=1)
+        ]
+    else:
+        results = df
 
-    skills = st.text_area("Enter your skills (comma separated)", "Python, Data Analysis, SQL")
-    role = st.selectbox("Preferred Role", ["Data Scientist", "ML Engineer", "Software Developer", "Product Manager"])
+    st.subheader("Results")
+    st.dataframe(results)
 
-    if st.button("Find Internships"):
-        with st.spinner("🔎 Searching best matches..."):
-            sleep(1.5)
+    if not results.empty:
+        for _, row in results.iterrows():
+            st.markdown(
+                f"""
+                **{row['Title']}** at *{row['Company']}*  
+                {row['Location']}  
+                [Apply Here]({row['Apply_Link']})
+                ---
+                """
+            )
 
-        data = {
-            "Internship Role": ["Data Analyst", "Software Intern", "ML Engineer", "Product Manager Intern"],
-            "Company": ["TCS", "Infosys", "Google", "Flipkart"],
-            "Location": ["Hyderabad", "Bangalore", "Remote", "Mumbai"],
-            "Match Score": ["92%", "85%", "78%", "88%"]
-        }
-        df = pd.DataFrame(data)
+# -----------------------------
+# Career Advisor Page
+# -----------------------------
+def career_advisor():
+    st.title("Career Advisor")
+    st.write("Get simple AI-powered career advice.")
 
-        st.success("✅ Found best internships for you!")
-        st.dataframe(df, use_container_width=True)
+    role = st.text_input("Enter your dream role (e.g., Data Scientist, Web Developer)")
+    skills = st.text_area("Enter your skills (comma separated)")
 
-        st.download_button("📥 Download Matches (CSV)", df.to_csv(index=False), "internships.csv", "text/csv")
+    if st.button("Get Advice"):
+        if role and skills:
+            st.success(f"Advice for becoming a **{role}**:")
+            st.markdown(f"""
+            - Keep improving your skills in **{skills}**  
+            - Build a portfolio with real projects  
+            - Apply for internships in related fields  
+            - Network with professionals on LinkedIn  
+            - Stay consistent and keep learning 
+            """)
+        else:
+            st.error("⚠️ Please enter both role and skills.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ========================
-# TAB 2: CAREER ADVISOR
-# ========================
-with tab2:
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">AI Career Advisor</h2>', unsafe_allow_html=True)
-
-    role = st.selectbox("Choose your target role", ["Data Scientist", "ML Engineer", "Software Developer", "Product Manager"])
-    if st.button("Get Career Advice"):
-        if role == "Data Scientist":
-            st.info("📌 Learn Python, SQL, Machine Learning, Statistics, and build Kaggle projects.")
-        elif role == "ML Engineer":
-            st.info("📌 Focus on TensorFlow/PyTorch, deep learning, deployment (FastAPI/Streamlit).")
-        elif role == "Software Developer":
-            st.info("📌 Master DSA, system design, and contribute to open-source projects.")
-        elif role == "Product Manager":
-            st.info("📌 Build leadership, problem-solving, user research, and agile methodology skills.")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ========================
-# TAB 3: RESUME BUILDER
-# ========================
-with tab3:
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">Build Your Resume</h2>', unsafe_allow_html=True)
+# -----------------------------
+# Resume Builder Page
+# -----------------------------
+def resume_builder():
+    st.title("📝 Resume Builder")
+    st.write("Fill in your details and download your resume instantly.")
 
     name = st.text_input("Full Name")
     email = st.text_input("Email")
-    phone = st.text_input("Phone")
-    education = st.text_area("Education (e.g., B.Tech CSE, VFSTR University, 2022-2026)")
-    skills = st.text_area("Skills")
-    projects = st.text_area("Projects / Internships")
-    achievements = st.text_area("Achievements")
+    phone = st.text_input("Phone Number")
+    linkedin = st.text_input("LinkedIn Profile")
+    summary = st.text_area("Career Summary")
 
-    if st.button("Preview Resume"):
-        st.subheader("Resume Preview")
-        resume_md = f"""
+    st.subheader("Education")
+    education = st.text_area("Enter education details")
+
+    st.subheader("Experience")
+    experience = st.text_area("Enter experience details")
+
+    st.subheader("🛠 Skills")
+    skills = st.text_area("List your skills (comma separated)")
+
+    if st.button("Generate Resume"):
+        if name and email and summary:
+            resume_md = f"""
 # {name}
+📧 {email} | 📞 {phone} | 🔗 {linkedin}
 
-{email} |  {phone}
+---
+
+## Career Summary
+{summary}
 
 ## Education
 {education}
 
+## Experience
+{experience}
+
 ## Skills
 {skills}
-
-## Projects & Internships
-{projects}
-
-## Achievements
-{achievements}
 """
-        st.markdown(resume_md)
+            st.subheader("Preview")
+            st.markdown(resume_md)
 
-        buffer = io.BytesIO()
-        buffer.write(resume_md.encode("utf-8"))
-        buffer.seek(0)
+            # Download option
+            buffer = io.BytesIO()
+            buffer.write(resume_md.encode("utf-8"))
+            buffer.seek(0)
 
-        st.download_button(
-            label=" Download Resume (Text)",
-            data=buffer,
-            file_name="resume.txt",
-            mime="text/plain"
-        )
+            st.download_button(
+                label="Download Resume (Text Format)",
+                data=buffer,
+                file_name="resume.txt",
+                mime="text/plain"
+            )
+        else:
+            st.error("‼️Please fill in at least Name, Email, and Summary.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+# -----------------------------
+# Contact Us Page
+# -----------------------------
+def contact_us():
+    st.title("📞 Contact Us")
+    st.write("Need help? Reach out below.")
 
-# ========================
-# TAB 4: CONTACT
-# ========================
-with tab4:
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">Contact Support / Mentors</h2>', unsafe_allow_html=True)
+    name = st.text_input("Your Name")
+    email = st.text_input("Your Email")
+    message = st.text_area("Your Message")
 
-    with st.form("contact_form"):
-        user_name = st.text_input("Your Name")
-        user_email = st.text_input("Your Email")
-        message = st.text_area("Your Message or Query")
-        submitted = st.form_submit_button("Send")
+    if st.button("Send Message"):
+        if name and email and message:
+            st.success("Thank you! Your message has been sent. We’ll get back to you soon.")
+        else:
+            st.error("⚠️ Please fill all fields before submitting.")
 
-        if submitted:
-            st.success("✅ Your message has been sent! Our team will contact you soon.")
+# -----------------------------
+# Sidebar Navigation
+# -----------------------------
+st.sidebar.title("Navigation")
+choice = st.sidebar.radio(
+    "Go to",
+    ["Internship Finder", "Career Advisor", "Resume Builder", "Contact Us"]
+)
 
-    st.markdown("""
-    ---
-     support@internfinder.in  
-     [LinkedIn](https://linkedin.com) | [GitHub](https://github.com) | [Website](https://Pm internship.com)
-    """, unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+if choice == "Internship Finder":
+    internship_finder()
+elif choice == "Career Advisor":
+    career_advisor()
+elif choice == "Resume Builder":
+    resume_builder()
+elif choice == "Contact Us":
+    contact_us()
