@@ -1,134 +1,169 @@
 import streamlit as st
 import pandas as pd
 import io
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from time import sleep
 
-# ---------- PAGE CONFIG ----------
-st.set_page_config(
-    page_title="SmartAssigners | Internship Platform",
-    page_icon="⚡",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# ========================
+# PAGE CONFIG
+# ========================
+st.set_page_config(page_title="PM Internship Finder", page_icon="🔎", layout="wide")
 
-# ---------- ENHANCED STYLING ----------
+# ========================
+# CUSTOM CSS
+# ========================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Inter', sans-serif; }
-    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
-    .main-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem;
-        border-radius: 20px; margin-bottom: 2rem; text-align: center; color: white;
-        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);}
-    .main-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -2px;
-        background: linear-gradient(45deg, #ffffff, #e6f3ff); -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent; background-clip: text;}
-    .main-subtitle { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-bottom: 0;}
-    .professional-card { background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08); margin-bottom: 1.5rem; transition: all 0.3s ease;}
-    .professional-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);}
-    .section-header { font-size: 1.8rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem;
-        position: relative; padding-bottom: 0.5rem;}
-    .section-header::after { content: ''; position: absolute; bottom: 0; left: 0; width: 60px; height: 3px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px;}
-    .success-message { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;
-        padding: 1rem 1.5rem; border-radius: 12px; font-weight: 500; margin: 1rem 0;}
+body {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+}
+.section-header {
+    font-size: 26px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+.professional-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.stTabs [data-baseweb="tab-list"] {
+    justify-content: center;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER ----------
-st.markdown("""
-<div class="main-header">
-    <div class="main-title">SmartAssigners</div>
-    <div class="main-subtitle">Intelligent Internship Allocation & Career Development Platform</div>
-</div>
-""", unsafe_allow_html=True)
+# ========================
+# HEADER
+# ========================
+st.title("Internship Finder & Career Assistant")
+st.markdown("Helping students discover the **right internships, career advice, and resume tools**.")
 
-# ---------- TABS ----------
-tab1, tab2, tab3, tab4 = st.tabs(["Internship Finder", "Career Advisor", "Resume Builder", "Contact"])
+# ========================
+# TABS
+# ========================
+tab1, tab2, tab3, tab4 = st.tabs(["🔍 Internship Finder", "🧭 Career Advisor", "📝 Resume Builder", "📞 Contact"])
 
-# ---------- INTERNSHIP FINDER ----------
+# ========================
+# TAB 1: INTERNSHIP FINDER
+# ========================
 with tab1:
     st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">Discover Your Perfect Internship</h2>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        name = st.text_input("Full Name", placeholder="Enter your complete name")
-        skills = st.text_area("Technical Skills", placeholder="e.g., Python, Machine Learning, Data Analysis", height=100)
-        academics = st.slider("Academic Performance (%)", 40, 100, 75)
-    with col2:
-        location = st.selectbox("Preferred Location", ["Any Location", "Delhi", "Mumbai", "Hyderabad", "Bengaluru", "Chennai"])
-        sector = st.selectbox("Industry Sector", ["Any Sector", "AI/ML", "Web Development", "Data Science", "Cybersecurity", "Business"])
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    if st.button("Find Best Matches"):
-        with st.spinner("Analyzing your profile and matching opportunities..."):
-            sleep(1.2)
-        internships = [
-            {"Role": "AI/ML Research Intern", "Location": "Bengaluru", "Match Score": "92%", "Stipend": "₹12,000", "Sector": "Artificial Intelligence"},
-            {"Role": "Data Science Intern", "Location": "Mumbai", "Match Score": "85%", "Stipend": "₹10,000", "Sector": "Data Science"},
-            {"Role": "Full Stack Developer", "Location": "Delhi", "Match Score": "80%", "Stipend": "₹8,000", "Sector": "Web Development"}
-        ]
-        st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
-        df = pd.DataFrame(internships)
+    st.markdown('<h2 class="section-header">Find Matching Internships</h2>', unsafe_allow_html=True)
+
+    skills = st.text_area("Enter your skills (comma separated)", "Python, Data Analysis, SQL")
+    role = st.selectbox("Preferred Role", ["Data Scientist", "ML Engineer", "Software Developer", "Product Manager"])
+
+    if st.button("Find Internships"):
+        with st.spinner("🔎 Searching best matches..."):
+            sleep(1.5)
+
+        data = {
+            "Internship Role": ["Data Analyst", "Software Intern", "ML Engineer", "Product Manager Intern"],
+            "Company": ["TCS", "Infosys", "Google", "Flipkart"],
+            "Location": ["Hyderabad", "Bangalore", "Remote", "Mumbai"],
+            "Match Score": ["92%", "85%", "78%", "88%"]
+        }
+        df = pd.DataFrame(data)
+
+        st.success("✅ Found best internships for you!")
         st.dataframe(df, use_container_width=True)
+
         st.download_button("📥 Download Matches (CSV)", df.to_csv(index=False), "internships.csv", "text/csv")
 
-# ---------- CAREER ADVISOR ----------
-with tab2:
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">Personalized Career Guidance</h2>', unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        role = st.text_input("Target Role", placeholder="e.g., Data Scientist, Software Engineer")
-        skills_list = st.text_area("Current Skill Set", placeholder="List your current technical and soft skills", height=120)
-    with col2:
-        experience = st.selectbox("Experience Level", ["Entry Level", "Mid Level", "Senior Level"])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    if st.button("Get Career Roadmap"):
-        with st.spinner("Creating your personalized career development plan..."):
-            sleep(1.2)
-        st.markdown('<div class="success-message">Your personalized career roadmap is ready!</div>', unsafe_allow_html=True)
-        st.markdown("✅ Focus on technical skills (Python, SQL, Cloud)\n\n✅ Build a portfolio on GitHub/LinkedIn\n\n✅ Expand your professional network")
+# ========================
+# TAB 2: CAREER ADVISOR
+# ========================
+with tab2:
+    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">AI Career Advisor</h2>', unsafe_allow_html=True)
 
-# ---------- RESUME BUILDER ----------
+    role = st.selectbox("Choose your target role", ["Data Scientist", "ML Engineer", "Software Developer", "Product Manager"])
+    if st.button("Get Career Advice"):
+        if role == "Data Scientist":
+            st.info("📌 Learn Python, SQL, Machine Learning, Statistics, and build Kaggle projects.")
+        elif role == "ML Engineer":
+            st.info("📌 Focus on TensorFlow/PyTorch, deep learning, deployment (FastAPI/Streamlit).")
+        elif role == "Software Developer":
+            st.info("📌 Master DSA, system design, and contribute to open-source projects.")
+        elif role == "Product Manager":
+            st.info("📌 Build leadership, problem-solving, user research, and agile methodology skills.")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ========================
+# TAB 3: RESUME BUILDER
+# ========================
 with tab3:
     st.markdown('<div class="professional-card">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-header">Build Your Resume</h2>', unsafe_allow_html=True)
-    name = st.text_input("Full Name (Resume)")
+
+    name = st.text_input("Full Name")
     email = st.text_input("Email")
     phone = st.text_input("Phone")
-    education = st.text_area("Education")
-    skills_resume = st.text_area("Skills")
+    education = st.text_area("Education (e.g., B.Tech CSE, VFSTR University, 2022-2026)")
+    skills = st.text_area("Skills")
     projects = st.text_area("Projects / Internships")
     achievements = st.text_area("Achievements")
-    if st.button("Generate Resume PDF"):
-        buffer = io.BytesIO()
-        pdf = canvas.Canvas(buffer, pagesize=letter)
-        pdf.setFont("Helvetica", 12)
-        pdf.drawString(50, 750, f"Name: {name}")
-        pdf.drawString(50, 730, f"Email: {email}")
-        pdf.drawString(50, 710, f"Phone: {phone}")
-        pdf.drawString(50, 690, f"Education: {education}")
-        pdf.drawString(50, 670, f"Skills: {skills_resume}")
-        pdf.drawString(50, 650, f"Projects: {projects}")
-        pdf.drawString(50, 630, f"Achievements: {achievements}")
-        pdf.showPage(); pdf.save(); buffer.seek(0)
-        st.download_button("📄 Download Resume", buffer, "resume.pdf", "application/pdf")
 
-# ---------- CONTACT ----------
+    if st.button("Preview Resume"):
+        st.subheader("Resume Preview")
+        resume_md = f"""
+# {name}
+
+{email} |  {phone}
+
+## Education
+{education}
+
+## Skills
+{skills}
+
+## Projects & Internships
+{projects}
+
+## Achievements
+{achievements}
+"""
+        st.markdown(resume_md)
+
+        buffer = io.BytesIO()
+        buffer.write(resume_md.encode("utf-8"))
+        buffer.seek(0)
+
+        st.download_button(
+            label=" Download Resume (Text)",
+            data=buffer,
+            file_name="resume.txt",
+            mime="text/plain"
+        )
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ========================
+# TAB 4: CONTACT
+# ========================
 with tab4:
     st.markdown('<div class="professional-card">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-header">Contact Support / Mentors</h2>', unsafe_allow_html=True)
+
     with st.form("contact_form"):
         user_name = st.text_input("Your Name")
         user_email = st.text_input("Your Email")
         message = st.text_area("Your Message or Query")
         submitted = st.form_submit_button("Send")
+
         if submitted:
             st.success("✅ Your message has been sent! Our team will contact you soon.")
-            # (Future) Integrate with Email API or Google Sheet
+
+    st.markdown("""
+    ---
+     support@internfinder.in  
+     [LinkedIn](https://linkedin.com) | [GitHub](https://github.com) | [Website](https://Pm internship.com)
+    """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
