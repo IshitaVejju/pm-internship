@@ -496,12 +496,11 @@ st.markdown("""
 <hr style="border:1px solid #e2e8f0">
 <div style="text-align:center; color:#4a5568; font-size:0.9rem; margin-top:10px;">
     Need Help? Contact us at 
-    <a href="mail to:support@smartAssigners.com">support@smartassigners.com</a>
+    <a href="mailto:support@smartassigners.com">support@smartassigners.com</a>
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("</div>", unsafe_allow_html=True) 
 
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
