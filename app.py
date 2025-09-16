@@ -483,67 +483,6 @@ with tab4:
         else:
             st.error("Please fill all fields.")
 
-# ---------- DETAILED SKILL MATCH PROGRESS ----------
-if st.button("Find Best Matches"):
-    with st.spinner("Analyzing your profile and matching opportunities..."):
-        sleep(1.8)
-
-    # Load CSV
-    df_internships = pd.read_csv("internship.csv")
-
-    matched_internships = []
-    for idx, intern in df_internships.iterrows():
-        score = 50  # base score
-
-        # Location match
-        if location != "Any Location" and location == intern["Location"]:
-            score += 20
-
-        # Sector match
-        if sector != "Any Sector" and sector in intern["Sector"]:
-            score += 25
-
-        # Skills match
-        user_skills_list = [s.strip().lower() for s in skills.split(",")]
-        intern_skills_list = [s.strip().lower() for s in str(intern.get("Requirements","")).split(",")]
-        if intern_skills_list:
-            skill_matches = len(set(user_skills_list) & set(intern_skills_list))
-            score += skill_matches * 5  # 5 points per matching skill
-
-        # Academic performance scaling
-        score += int((academics - 50) / 5)  # simple scaling
-
-        matched_internships.append({
-            "Role": intern["Title"],
-            "Location": intern["Location"],
-            "Match Score": f"{min(score,100)}%",
-            "Stipend": intern["Stipend"],
-            "Sector": intern["Sector"]
-        })
-
-    # Sort by Match Score
-    matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
-
-    # Display top 3
-    internships = matched_internships[:3]
-
-    st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
-
-    # ---------- Skill Match Progress ----------
-    st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-    st.markdown('<h3 class="section-header">Skill Match Details</h3>', unsafe_allow_html=True)
-
-    for internship in internships:
-        st.markdown(f"### {internship['Role']} - {internship['Location']}")
-        intern_skills = [s.strip().lower() for s in df_internships.loc[df_internships['Title'] == internship['Role'], 'Requirements'].values[0].split(",")]
-
-        for skill in user_skills_list:
-            match = 100 if skill in intern_skills else 0
-            st.text(f"{skill}: {'✔️' if match else '❌'}")
-            st.progress(match)
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # ---------- FOOTER ----------
 st.markdown("""
 <hr style="border:1px solid #e2e8f0">
