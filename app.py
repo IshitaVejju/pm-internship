@@ -360,7 +360,8 @@ with tab1:
             st.dataframe(df, use_container_width=True, hide_index=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # Detailed Cards (indented inside the button block ✅)
+            
+                        # Detailed Cards (indented inside the button block ✅)
             st.markdown('<div class="professional-card">', unsafe_allow_html=True)
             st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
 
@@ -370,14 +371,16 @@ with tab1:
                     st.markdown(f"""
                     <div class="internship-card">
                         <div class="internship-title">{internship['Role']}</div>
-                        <div class="internship-detail"> {internship['Location']}</div>
-                        <div class="internship-detail"> {internship['Stipend']}</div>
-                        <div class="internship-detail"> {internship['Sector']}</div>
+                        <div class="internship-detail">📍 {internship['Location']}</div>
+                        <div class="internship-detail">💰 {internship['Stipend']}</div>
+                        <div class="internship-detail">🏢 {internship['Sector']}</div>
                         <div class="match-score">Match: {internship['Match Score']}</div>
                     </div>
                     """, unsafe_allow_html=True)
 
-            st.markdown('</div>', unsafe_allow_html=True)  # closes Detailed Cards
+            #  This closing div is aligned with "st.markdown('<div...')" above
+            st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ---------- CAREER ADVISOR ----------
 with tab2:
