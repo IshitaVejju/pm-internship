@@ -346,12 +346,19 @@ with tab1:
                 })
 
             # Sort by Match Score
-            matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
+            matched_internships = sorted(
+                matched_internships, 
+                key=lambda x: int(x["Match Score"].replace("%","")), 
+                reverse=True
+            )
 
             # Display top 3
             internships = matched_internships[:3]
 
-            st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>',
+                unsafe_allow_html=True
+            )
 
             # Comparison Table
             st.markdown('<div class="professional-card">', unsafe_allow_html=True)
@@ -360,8 +367,7 @@ with tab1:
             st.dataframe(df, use_container_width=True, hide_index=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-            
-                        # Detailed Cards (indented inside the button block ✅)
+            # Detailed Cards
             st.markdown('<div class="professional-card">', unsafe_allow_html=True)
             st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
 
@@ -378,9 +384,8 @@ with tab1:
                     </div>
                     """, unsafe_allow_html=True)
 
-            #  This closing div is aligned with "st.markdown('<div...')" above
+            # ✅ close Detailed Cards container (aligned properly)
             st.markdown('</div>', unsafe_allow_html=True)
-
 
 # ---------- CAREER ADVISOR ----------
 with tab2:
