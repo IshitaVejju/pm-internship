@@ -303,7 +303,7 @@ with tab1:
     
     st.markdown('</div>', unsafe_allow_html=True)
     if st.button("Find Best Matches"):
-    with st.spinner("Analyzing your profile and matching opportunities..."):
+        with st.spinner("Analyzing your profile and matching opportunities..."):
         sleep(1.8)
 
         # Load CSV
