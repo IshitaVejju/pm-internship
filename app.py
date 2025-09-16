@@ -282,7 +282,6 @@ st.markdown("""
 tab1, tab2, tab3, tab4 = st.tabs(["Internship Finder", "Career Advisor", "Resume Builder", "Contact Us"])
 
 # ---------- INTERNSHIP FINDER ----------
-# ---------- INTERNSHIP FINDER ----------
 with tab1:
     st.markdown('<div class="professional-card">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-header">Discover Your Perfect Internship</h2>', unsafe_allow_html=True)
@@ -308,80 +307,77 @@ with tab1:
         with st.spinner("Analyzing your profile and matching opportunities..."):
             sleep(1.8)
 
-        # Load CSV safely
-        import os
-        csv_path = "data/internship.csv"
-        if os.path.exists(csv_path):
-            df_internships = pd.read_csv(csv_path)
-        else:
-            st.error(f"File not found: {csv_path}. Please upload it in the project folder.")
-            df_internships = pd.DataFrame()  # empty dataframe to prevent further errors
+            # Load CSV
+            df_internships = pd.read_csv("internship.csv")
 
-        matched_internships = []
+            matched_internships = []
 
-        for idx, intern in df_internships.iterrows():
-            score = 50  # base score
+            for idx, intern in df_internships.iterrows():
+                score = 50  # base score
 
-            # Location match
-            if location != "Any Location" and location == intern["Location"]:
-                score += 20
+                # Location match
+                if location != "Any Location" and location == intern["Location"]:
+                    score += 20
 
-            # Sector match
-            if sector != "Any Sector" and sector in intern["Sector"]:
-                score += 25
+                # Sector match
+                if sector != "Any Sector" and sector.lower() in intern["Sector"].lower():
+                    score += 25
 
-            # Skills match
-            user_skills = [s.strip().lower() for s in skills.split(",")]
-            intern_skills = [s.strip().lower() for s in str(intern.get("Skills","")).split(",")]
-            if intern_skills:
-                skill_matches = len(set(user_skills) & set(intern_skills))
-                score += skill_matches * 5  # 5 points per matching skill
+                # Skills/Requirements match
+                user_skills = [s.strip().lower() for s in skills.split(",")]
+                intern_skills = [s.strip().lower() for s in str(intern.get("Requirements","")).split(",")]
+                if intern_skills:
+                    skill_matches = len(set(user_skills) & set(intern_skills))
+                    score += skill_matches * 5  # 5 points per matching skill
 
-            # Academic performance scaling
-            score += int((academics - 50) / 5)  # simple scaling
+                # Academic performance vs MinPercent
+                min_percent = intern.get("MinPercent", 0)
+                if academics >= min_percent:
+                    score += 10  # extra points if eligible
+                else:
+                    score -= 20  # penalize if below requirement
 
-            matched_internships.append({
-                "Role": intern["Role"],
-                "Location": intern["Location"],
-                "Match Score": f"{min(score,100)}%",
-                "Stipend": intern["Stipend"],
-                "Sector": intern["Sector"]
-            })
+                matched_internships.append({
+                    "Role": intern["Title"],
+                    "Location": intern["Location"],
+                    "Match Score": f"{min(max(score,0),100)}%",
+                    "Stipend": intern["Stipend"],
+                    "Sector": intern["Sector"]
+                })
 
-        # Sort by Match Score
-        matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
+            # Sort by Match Score
+            matched_internships = sorted(matched_internships, key=lambda x: int(x["Match Score"].replace("%","")), reverse=True)
 
-        # Display top 3
-        internships = matched_internships[:3]
+            # Display top 3
+            internships = matched_internships[:3]
 
-        st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="success-message">Found {len(internships)} excellent opportunities matching your profile!</div>', unsafe_allow_html=True)
 
-        # Comparison Table
-        st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-        st.markdown('<h3 class="section-header">Opportunity Comparison</h3>', unsafe_allow_html=True)
-        df = pd.DataFrame(internships)
-        st.dataframe(df, use_container_width=True, hide_index=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            # Comparison Table
+            st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+            st.markdown('<h3 class="section-header">Opportunity Comparison</h3>', unsafe_allow_html=True)
+            df = pd.DataFrame(internships)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        # Detailed Cards
-        st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-        st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
-        
-        cols = st.columns(len(internships))
-        for col, internship in zip(cols, internships):
-            with col:
-                st.markdown(f"""
-                <div class="internship-card">
-                    <div class="internship-title">{internship['Role']}</div>
-                    <div class="internship-detail">📍 {internship['Location']}</div>
-                    <div class="internship-detail">💰 {internship['Stipend']}</div>
-                    <div class="internship-detail">🏢 {internship['Sector']}</div>
-                    <div class="match-score">Match: {internship['Match Score']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
+            # Detailed Cards
+            st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+            st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
+            
+            cols = st.columns(len(internships))
+            for col, internship in zip(cols, internships):
+                with col:
+                    st.markdown(f"""
+                    <div class="internship-card">
+                        <div class="internship-title">{internship['Role']}</div>
+                        <div class="internship-detail">📍 {internship['Location']}</div>
+                        <div class="internship-detail">💰 {internship['Stipend']}</div>
+                        <div class="internship-detail">🏢 {internship['Sector']}</div>
+                        <div class="match-score">Match: {internship['Match Score']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- CAREER ADVISOR ----------
 with tab2:
