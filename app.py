@@ -360,26 +360,24 @@ with tab1:
             st.dataframe(df, use_container_width=True, hide_index=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-            
-# Detailed Cards
-st.markdown('<div class="professional-card">', unsafe_allow_html=True)
-st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
+            # Detailed Cards (indented inside the button block ✅)
+            st.markdown('<div class="professional-card">', unsafe_allow_html=True)
+            st.markdown('<h3 class="section-header">Detailed View</h3>', unsafe_allow_html=True)
 
-cols = st.columns(len(internships))  # <-- fixed indentation
-for col, internship in zip(cols, internships):
-    with col:
-        st.markdown(f"""
-        <div class="internship-card">
-            <div class="internship-title">{internship['Role']}</div>
-            <div class="internship-detail">📍 {internship['Location']}</div>
-            <div class="internship-detail">💰 {internship['Stipend']}</div>
-            <div class="internship-detail">🏢 {internship['Sector']}</div>
-            <div class="match-score">Match: {internship['Match Score']}</div>
-        </div>
-        """, unsafe_allow_html=True)
+            cols = st.columns(len(internships))
+            for col, internship in zip(cols, internships):
+                with col:
+                    st.markdown(f"""
+                    <div class="internship-card">
+                        <div class="internship-title">{internship['Role']}</div>
+                        <div class="internship-detail"> {internship['Location']}</div>
+                        <div class="internship-detail"> {internship['Stipend']}</div>
+                        <div class="internship-detail"> {internship['Sector']}</div>
+                        <div class="match-score">Match: {internship['Match Score']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-# Close the parent div outside of the for loop
-st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)  # closes Detailed Cards
 
 # ---------- CAREER ADVISOR ----------
 with tab2:
